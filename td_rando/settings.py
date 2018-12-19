@@ -24,8 +24,9 @@ SECRET_KEY = 'd)8-70q6ob$c-(@+1hdrd3f*$91%cu=ov_4&rb(@=0*#dtdh+*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
+
+ETC_DIR = os.path.join(BASE_DIR, 'etc')
 
 
 # Application definition
@@ -38,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'django_crypto_fields'
+    'django_crypto_fields.apps.AppConfig',
+    'td_rando.apps.AppConfig'
 ]
 
 MIDDLEWARE_CLASSES = [
