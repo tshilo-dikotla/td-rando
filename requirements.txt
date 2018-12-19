@@ -9,3 +9,5 @@ git+https://github.com/erikvw/django-crypto-fields.git@develop#egg=django_crypto
 git+https://github.com/tshilo-dikotla/td-maternal.git@develop#egg=td_maternal
 git+https://github.com/botswana-harvard/edc_device.git@develop#egg=edc_device
 git+https://github.com/botswana-harvard/edc_device.git@develop#egg=edc_device
+git+https://github.com/botswana-harvard/django-revision.git@develop#egg=django_revision
+git+https://github.com/botswana-harvard/edc_model_fields.git@develop#egg=edc_model_fields

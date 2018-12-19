@@ -26,6 +26,8 @@ SECRET_KEY = 'd)8-70q6ob$c-(@+1hdrd3f*$91%cu=ov_4&rb(@=0*#dtdh+*'
 DEBUG = True
 ALLOWED_HOSTS = []
 
+APP_NAME = 'td_rando'
+
 ETC_DIR = os.path.join(BASE_DIR, 'etc')
 
 
@@ -40,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'django_crypto_fields.apps.AppConfig',
-    'td_rando.apps.AppConfig'
+    'td_rando.apps.AppConfig',
+    'edc_device.apps.AppConfig'
 ]
 
 MIDDLEWARE_CLASSES = [
