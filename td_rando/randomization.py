@@ -23,7 +23,6 @@ class Randomization(object):
         Update the record with subject_identifier, initials and other maternal specific data."""
 
         self.verify_hiv_status()
-#         self.verify_not_already_randomized()
         if self.td_rando.__class__.objects.all().count() == 0:
             next_to_pick = 1
         else:
