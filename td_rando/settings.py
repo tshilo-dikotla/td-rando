@@ -40,10 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_extensions',
     'django_crypto_fields.apps.AppConfig',
     'td_rando.apps.AppConfig',
-    'edc_device.apps.AppConfig'
+    'edc_base.apps.AppConfig',
+    'edc_device.apps.AppConfig',
+    'td_maternal.apps.AppConfig'
 ]
 
 MIDDLEWARE_CLASSES = [
