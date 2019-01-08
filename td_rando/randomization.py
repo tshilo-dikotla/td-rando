@@ -1,9 +1,10 @@
 from django.utils import timezone
 from edc_constants.constants import POS
+
 from td_maternal.models import SubjectConsent
-from td_maternal.models.list_models import RandomizationItem
 
 from .constants import RANDOMIZED
+from .models import RandomizationItem
 
 
 class Randomization(object):

@@ -43,9 +43,18 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django_extensions',
     'django_crypto_fields.apps.AppConfig',
+    'edc_action_item.apps.AppConfig',
+    'edc_lab.apps.AppConfig',
     'td_rando.apps.AppConfig',
     'edc_base.apps.AppConfig',
     'edc_device.apps.AppConfig',
+    'edc_timepoint.apps.AppConfig',
+    'edc_subject_dashboard.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
+    'edc_protocol.apps.AppConfig',
+    'edc_appointment.apps.AppConfig',
+    #'edc_visit_tracking.apps.AppConfig',
+    'td_rando.apps.EdcVisitTrackingAppConfig',
     'td_maternal.apps.AppConfig'
 ]
 
@@ -58,6 +67,10 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+MIDDLEWARE = [
+    'edc_subject_dashboard.middleware.DashboardMiddleware',
 ]
 
 ROOT_URLCONF = 'td_rando.urls'
@@ -124,8 +137,22 @@ USE_L10N = True
 
 USE_TZ = True
 
+DEFAULT_STUDY_SITE = '40'
+
+SITE_ID = 1
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# dashboards
+DASHBOARD_URL_NAMES = {
+    'maternal_subject_models_url': 'maternal_subject_models_url',
+    'subject_listboard_url': 'td_dashboard:subject_listboard_url',
+    'screening_listboard_url': 'td_dashboard:screening_listboard_url',
+    'subject_dashboard_url': 'td_dashboard:subject_dashboard_url',
+    'infant_listboard_url': 'td_dashboard:infant_listboard_url',
+    'infant_subject_dashboard_url': 'td_dashboard:infant_subject_dashboard_url',
+}
