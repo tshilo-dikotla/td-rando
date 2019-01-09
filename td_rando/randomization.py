@@ -1,8 +1,7 @@
+from django.apps import apps as django_apps
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from edc_constants.constants import POS
-
-from td_maternal.models import SubjectConsent
-
 from .constants import RANDOMIZED
 from .models import RandomizationItem
 
@@ -19,6 +18,14 @@ class Randomization(object):
         self.randomization_datetime = None
         self.initials = None
 
+    @property
+    def registered_subject_model_cls(self):
+        return django_apps.get_model('edc_registration.registeredsubject')
+
+    @property
+    def subject_consent_model_cls(self):
+        return django_apps.get_model('td_maternal.subjectconsent')
+
     def randomize(self):
         """Selects the next available record from the Pre-Populated Randomization list.
         Update the record with subject_identifier, initials and other maternal specific data."""
@@ -32,17 +39,26 @@ class Randomization(object):
         next_randomization_item = RandomizationItem.objects.get(
             name=str(next_to_pick))
         subject_identifier = self.td_rando.maternal_visit.subject_identifier
-        consent = SubjectConsent.objects.filter(
-            subject_identifier=subject_identifier).first()
+        try:
+            consent = self.subject_consent_model_cls.objects.filter(
+                subject_identifier=subject_identifier).first()
+        except ObjectDoesNotExist:
+            raise Exception(
+                'Object Not Found')
         self.site = consent.study_site
         self.sid = int(next_randomization_item.name)
         self.rx = next_randomization_item.field_name
         self.subject_identifier = subject_identifier
         self.randomization_datetime = timezone.datetime.now()
-        self.initials = self.td_rando.maternal_visit.appointment.registered_subject.initials
+        self.initials = consent.initials
 
         dte = timezone.datetime.today()
-        registered_subject = self.td_rando.maternal_visit.appointment.registered_subject
+        try:
+            registered_subject = self.registered_subject_model_cls.objects.get(
+                subject_identifier=self.td_rando.maternal_visit.subject_identifier)
+        except ObjectDoesNotExist:
+            raise Exception(
+                'Object Not Found')
         registered_subject.sid = self.sid
         registered_subject.randomization_datetime = self.randomization_datetime
         registered_subject.modified = dte
