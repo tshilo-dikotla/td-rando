@@ -1,7 +1,11 @@
+from datetime import timedelta
+
 from django.db import import models
 from django.db.models.deletion import PROTECT
+from django.utils import timezone
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
+from edc_constants.choices import YES_NO_UNKNOWN_NA
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 
 
@@ -56,5 +60,44 @@ class MaternalConsent(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
 
     consent_datetime = models.DateTimeField()
 
-    dob = models.DateField()            
+    dob = models.DateField()
+    
+class AntenatalVisitMembership(BaseUuidModel):
+    
+    report_datetime = models.DateTimeField()
+    
+    registered_subject = models.Charfield(
+        max_length=50,
+        unique=True) 
+    antenatal_visits =  models.CharField(
+        max_length=15,
+        choices=YES_NO_UNKNOWN_NA
+        )     
+
+class MaternalUltraSoundIni(BaseUuidModel):
+    
+    maternal_visit =  models.CharField(
+        max_length=15,
+        choices=YES_NO_UNKNOWN_NA
+        )    
+    report_datetime = models.DateTimeField()    
+
+class MaternalEligibility(BaseUuidModel):
+    
+    report_datetime = models.DateTimeField()
+    
+    age_in_years = models.DecimalField(
+        max_digits=5,
+        decimal_places=2)
+    
+class AntenatalEnrollment(BaseUuidModel):
+    
+    report_datetime = models.DateTimeField()
+
+    registered_subject = models.Charfield(
+        max_length=50,
+        unique=True)      
+            
+        
+                
     
