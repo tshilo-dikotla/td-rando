@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.db import import models
 from django.db.models.deletion import PROTECT
 from django.utils import timezone
@@ -96,7 +94,8 @@ class AntenatalEnrollment(BaseUuidModel):
 
     registered_subject = models.Charfield(
         max_length=50,
-        unique=True)      
+        unique=True) 
+    current_hiv_status = models.CharField(max_length=25)      
             
         
                 
