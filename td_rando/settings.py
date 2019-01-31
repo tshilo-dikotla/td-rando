@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     'edc_appointment.apps.AppConfig',
     #'edc_visit_tracking.apps.AppConfig',
     'td_rando.apps.EdcVisitTrackingAppConfig',
-    'td_maternal.apps.AppConfig'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -147,7 +146,7 @@ SITE_ID = 1
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
-
+RANDOMIZATION_LIST_PATH = os.path.join(BASE_DIR, 'test_randomization_list.csv')
 # dashboards
 DASHBOARD_URL_NAMES = {
     'maternal_subject_models_url': 'maternal_subject_models_url',

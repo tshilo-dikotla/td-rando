@@ -8,7 +8,7 @@ from .models import RandomizationItem
 
 class Randomization(object):
 
-    def __init__(self, td_rando, exception_cls=None):
+    def __init__(self, td_rando=None, exception_cls=None):
         self.td_rando = td_rando
         self.exception_cls = exception_cls
         self.site = None
