@@ -50,12 +50,15 @@ class TestRandomization(TestCase):
             subject_identifier=appointment.subject_identifier,
             appointment=appointment)
 
-    @tag('r')
     def populate_list(self):
         path = create_test_list()
         import_randomization_list(path=path, overwrite=True)
 
+    @tag('r')
     def test_randomization_return(self):
+        self.populate_list()
+        rando_list = RandomizationList.object.all()
+        self.AssertEqual(rando_list.count(), 10)
         maternal_rando = MaternalRando.objects.create(
             maternal_visit=self.maternal_visit
         )
