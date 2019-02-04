@@ -37,21 +37,21 @@ def import_randomization_list(path=None, verbose=None, overwrite=None, add=None)
             'Not importing CSV. RandomizationList model is not empty!')
     with open(path, 'r') as csvfile:
         reader = csv.DictReader(csvfile)
-        sids = [row['pid'] for row in reader]
+        sids = [row['sid'] for row in reader]
     if len(sids) != len(list(set(sids))):
         raise RandomizationListImportError(
-            'Invalid file. Detected duplicate PIDs')
+            'Invalid file. Detected duplicate SIDs')
     sid_count = len(sids)
     with open(path, 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in tqdm(reader, total=sid_count):
             row = {k: v.strip() for k, v in row.items()}
             try:
-                RandomizationList.objects.get(sid=row['pid'])
+                RandomizationList.objects.get(sid=row['sid'])
             except ObjectDoesNotExist:
 
                 RandomizationList.objects.create(
-                    sid=row['pid'],
+                    sid=row['sid'],
                     drug_assignment=row['drug_assignment'])
     count = RandomizationList.objects.all().count()
     if verbose:

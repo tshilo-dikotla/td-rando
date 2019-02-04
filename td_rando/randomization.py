@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils import timezone
 from edc_constants.constants import POS
 from .constants import RANDOMIZED
@@ -25,6 +25,9 @@ class Randomization(object):
     @property
     def subject_consent_model_cls(self):
         return django_apps.get_model('td_maternal.subjectconsent')
+
+    def antenatal_enrollment_cls(self):
+        return 
 
     def randomize(self):
         """Selects the next available record from the Pre-Populated Randomization list.
@@ -66,7 +69,20 @@ class Randomization(object):
         registered_subject.save()
         return (self.site, self.sid, self.rx, self.subject_identifier, self.randomization_datetime, self.initials)
 
+    @property
+    def antenatal_enrollment(self):
+        """Return antenatal enrollment.
+        """
+        app_config = django_apps.get_app_config('td_rando')
+        antenatal_enrollment = django_apps.get_model(app_config.antenatal_enrollement_model)
+        try:
+            antenatal_enrollment = antenatal_enrollment.objects.get(
+                subject_identifier=self.td_rando.maternal_visit.subject_identifier)
+        except antenatal_enrollment.DoesNotExist:
+            raise ValidationError(f'Antenata lEnrollment for subject {self.subject_identifier} must exist')
+        return antenatal_enrollment
+
     def verify_hiv_status(self):
-        if self.td_rando.antenatal_enrollment.enrollment_hiv_status != POS:
+        if self.antenatal_enrollment.enrollment_hiv_status != POS:
             raise self.exception_cls("Cannot Randomize mothers that are not HIV POS. Got {}. See Antenatal Enrollment."
-                                     .format(self.td_rando.antenatal_enrollment.enrollment_hiv_status))
+                                     .format(self.antenatal_enrollment.enrollment_hiv_status))

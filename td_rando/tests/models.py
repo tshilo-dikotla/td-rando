@@ -1,12 +1,9 @@
-from asyncio.windows_events import NULL
-
 from django.db import models
 from django.db.models.deletion import PROTECT
-from django.utils import timezone
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.utils import get_utcnow
 from edc_constants.choices import YES_NO_UNKNOWN_NA
-from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
+from td_rando.randomization import Randomization
 
 
 class Appointment(BaseUuidModel):
@@ -39,7 +36,7 @@ class RegisteredSubject(BaseUuidModel):
         blank=True)
 
 
-class MaternalConsent(UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
+class MaternalConsent(BaseUuidModel):
 
     subject_identifier = models.CharField(max_length=25)
 
@@ -52,9 +49,8 @@ class AntenatalVisitMembership(BaseUuidModel):
 
     report_datetime = models.DateTimeField()
 
-    registered_subject = models.Charfield(
-        max_length=50,
-        unique=True)
+    subject_identifier = models.CharField(max_length=25)
+
     antenatal_visits = models.CharField(
         max_length=15,
         choices=YES_NO_UNKNOWN_NA
@@ -83,20 +79,16 @@ class AntenatalEnrollment(BaseUuidModel):
 
     report_datetime = models.DateTimeField()
 
-    registered_subject = models.Charfield(
-        max_length=50,
-        unique=True)
-    current_hiv_status = models.CharField(max_length=25)
+    subject_identifier = models.CharField(max_length=25)
+
+    enrollment_hiv_status = models.CharField(max_length=25)
 
 
 class MaternalRando (BaseUuidModel):
 
-    subject_identifier = models.CharField(
-        max_length=25,
-        null=True,
-        blank=True)
+    maternal_visit = models.ForeignKey(MaternalVisit, on_delete=PROTECT)
 
-    maternal_visit = models.ForeignKey(MaternalVisit)
+    subject_identifier = models.CharField(max_length=25)
 
     report_datetime = models.DateTimeField(
         null=True,
@@ -107,13 +99,11 @@ class MaternalRando (BaseUuidModel):
         null=True,
         blank=True)
 
-    sid = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
+    sid = models.IntegerField(
         null=True,
         blank=True)
 
-    rx = models.Charfield(
+    rx = models.CharField(
         max_length=25,
         null=True,
         blank=True)
@@ -122,7 +112,14 @@ class MaternalRando (BaseUuidModel):
         null=True,
         blank=True)
 
-    initials = models.Charfield(
+    initials = models.CharField(
         max_length=25,
         null=True,
         blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            randomization_helper = Randomization(self)
+            (self.site, self.sid, self.rx, self.subject_identifier,
+             self.randomization_datetime, self.initials) = randomization_helper.randomize()
+        super(MaternalRando, self).save(*args, **kwargs)
