@@ -44,6 +44,8 @@ class MaternalConsent(BaseUuidModel):
 
     dob = models.DateField()
 
+    initials = models.CharField(max_length=4)
+
 
 class AntenatalVisitMembership(BaseUuidModel):
 

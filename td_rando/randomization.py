@@ -1,12 +1,28 @@
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils import timezone
 from edc_constants.constants import POS
+
 from .constants import RANDOMIZED
-from .models import RandomizationItem
+from .models import RandomizationList
 
 
 class Randomization(object):
+
+    subject_consent_model = 'td_maternal.subjectconsent'
+    registered_subject_model = 'edc_registration.registeredsubject'
+
+    @property
+    def registered_subject_model_cls(self):
+        return django_apps.get_model(self.registered_subject_model)
+
+    @property
+    def subject_consent_model_cls(self):
+        return django_apps.get_model(self.subject_consent_model)
+
+    def antenatal_enrollment_cls(self):
+        return
 
     def __init__(self, td_rando=None, exception_cls=None):
         self.td_rando = td_rando
@@ -18,17 +34,6 @@ class Randomization(object):
         self.randomization_datetime = None
         self.initials = None
 
-    @property
-    def registered_subject_model_cls(self):
-        return django_apps.get_model('edc_registration.registeredsubject')
-
-    @property
-    def subject_consent_model_cls(self):
-        return django_apps.get_model('td_maternal.subjectconsent')
-
-    def antenatal_enrollment_cls(self):
-        return 
-
     def randomize(self):
         """Selects the next available record from the Pre-Populated Randomization list.
         Update the record with subject_identifier, initials and other maternal specific data."""
@@ -39,8 +44,8 @@ class Randomization(object):
         else:
             next_to_pick = self.td_rando.__class__.objects.all(
             ).order_by('-sid').first().sid + 1
-        next_randomization_item = RandomizationItem.objects.get(
-            name=str(next_to_pick))
+        next_randomization_item = RandomizationList.objects.get(
+            sid=str(next_to_pick))
         subject_identifier = self.td_rando.maternal_visit.subject_identifier
         try:
             consent = self.subject_consent_model_cls.objects.filter(
@@ -48,9 +53,9 @@ class Randomization(object):
         except ObjectDoesNotExist:
             raise Exception(
                 'Object Not Found')
-        self.site = consent.study_site
-        self.sid = int(next_randomization_item.name)
-        self.rx = next_randomization_item.field_name
+        self.site = settings.DEFAULT_STUDY_SITE
+        self.sid = int(next_randomization_item.sid)
+        self.rx = next_randomization_item.drug_assignment
         self.subject_identifier = subject_identifier
         self.randomization_datetime = timezone.datetime.now()
         self.initials = consent.initials
@@ -67,19 +72,23 @@ class Randomization(object):
         registered_subject.modified = dte
         registered_subject.registration_status = RANDOMIZED
         registered_subject.save()
-        return (self.site, self.sid, self.rx, self.subject_identifier, self.randomization_datetime, self.initials)
+        return (self.site, self.sid,
+                self.rx, self.subject_identifier,
+                self.randomization_datetime, self.initials)
 
     @property
     def antenatal_enrollment(self):
         """Return antenatal enrollment.
         """
         app_config = django_apps.get_app_config('td_rando')
-        antenatal_enrollment = django_apps.get_model(app_config.antenatal_enrollement_model)
+        antenatal_enrollment = django_apps.get_model(
+            app_config.antenatal_enrollement_model)
         try:
             antenatal_enrollment = antenatal_enrollment.objects.get(
                 subject_identifier=self.td_rando.maternal_visit.subject_identifier)
         except antenatal_enrollment.DoesNotExist:
-            raise ValidationError(f'Antenata lEnrollment for subject {self.subject_identifier} must exist')
+            raise ValidationError(
+                f'Antenatal Enrollment for subject {self.subject_identifier} must exist')
         return antenatal_enrollment
 
     def verify_hiv_status(self):
