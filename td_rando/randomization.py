@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils import timezone
+from edc_base.utils import get_utcnow
 from edc_constants.constants import POS
 
 from .constants import RANDOMIZED
@@ -29,8 +30,7 @@ class Randomization(object):
     def __init__(self, td_rando=None, exception_cls=None):
         self.td_rando = td_rando
         self.exception_cls = exception_cls
-        self.subject_identifier = td_rando.maternal_visit.appointment.subject_identifier
-        self.site = None
+        self.subject_identifier = td_rando.maternal_visit.subject_identifier
         self.sid = None
         self.rx = None
         self.randomization_datetime = None
@@ -55,10 +55,9 @@ class Randomization(object):
         except ObjectDoesNotExist:
             raise Exception(
                 'Object Not Found')
-        self.site = settings.DEFAULT_STUDY_SITE
         self.sid = int(next_randomization_item.sid)
         self.rx = next_randomization_item.drug_assignment
-        self.randomization_datetime = timezone.datetime.now()
+        self.randomization_datetime = get_utcnow()
         self.initials = consent.initials
 
         dte = timezone.datetime.today()
@@ -73,9 +72,7 @@ class Randomization(object):
         registered_subject.modified = dte
         registered_subject.registration_status = RANDOMIZED
         registered_subject.save()
-        return (self.site, self.sid,
-                self.rx, self.subject_identifier,
-                self.randomization_datetime, self.initials)
+        return (self.sid, self.rx, self.randomization_datetime, self.initials)
 
     @property
     def antenatal_enrollment(self):
