@@ -9,18 +9,22 @@ from ..models import RandomizationList
 from ..randomization import Randomization
 from .create_test_list import create_test_list
 from .models import MaternalRando
-from .models import RegisteredSubject, MaternalConsent, Appointment, MaternalVisit, MaternalEligibility, AntenatalEnrollment
+from .models import MaternalVisit, MaternalEligibility, AntenatalEnrollment
+from .models import RegisteredSubject, MaternalConsent, Appointment
 
 
 class TestRandomization(TestCase):
 
     import_randomization_list = False
 
+    def setUp(self):
+        self.populate_list()
+
     def populate_list(self):
         path = create_test_list(first_sid=1)
         import_randomization_list(path=path, overwrite=True)
 
-    def create_participant(self, subject_identifier=None):
+    def create_participant(self, subject_identifier=None, hiv_status=None):
         MaternalEligibility.objects.create(
             report_datetime=get_utcnow(),
             age_in_years=25
@@ -38,11 +42,13 @@ class TestRandomization(TestCase):
         registered_subject_model = 'td_rando.registeredsubject'
         Randomization.registered_subject_model = registered_subject_model
 
+        antenatal_enrollment_model = 'td_rando.antenatalenrollment'
+        Randomization.antenatal_enrollment_model = antenatal_enrollment_model
+
         AntenatalEnrollment.objects.create(
             report_datetime=get_utcnow(),
             subject_identifier=subject_identifier,
-            enrollment_hiv_status=POS
-        )
+            enrollment_hiv_status=hiv_status)
 
         appointment = Appointment.objects.create(
             subject_identifier=subject_identifier,
@@ -56,16 +62,16 @@ class TestRandomization(TestCase):
         return maternal_visit
 
     @tag('r')
-    def test_randomization_return(self):
+    def test_randomization_squential_assignmet_pos(self):
         self.populate_list()
 
         rando_list = RandomizationList.objects.all().order_by('sid')
         self.assertEqual(rando_list.count(), 10)
-
         count = 1
         for x in rando_list:
             options = {'maternal_visit': self.create_participant(
-                subject_identifier='085-0000000-' + str(count))}
+                subject_identifier='085-0000000-' + str(count),
+                hiv_status=POS)}
             maternal_rando = MaternalRando.objects.create(**options)
             self.assertEqual(maternal_rando.sid, count)
             count += 1

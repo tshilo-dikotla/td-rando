@@ -120,8 +120,7 @@ class MaternalRando (BaseUuidModel):
         blank=True)
 
     def save(self, *args, **kwargs):
-        if not self.id:
-            randomization_helper = Randomization(self)
-            (self.site, self.sid, self.rx, self.subject_identifier,
-             self.randomization_datetime, self.initials) = randomization_helper.randomize()
+        randomization_helper = Randomization(self)
+        (self.site, self.sid, self.rx, self.subject_identifier,
+         self.randomization_datetime, self.initials) = randomization_helper.randomize()
         super(MaternalRando, self).save(*args, **kwargs)
