@@ -12,7 +12,6 @@ class RandomizationList(BaseUuidModel):
     drug_assignment = EncryptedTextField(
         verbose_name="Treatment Assignment")
 
-
-def save(self, *args, **kwargs):
-
-    super().save(*args, **kwargs)
+    class Meta:
+        app_label = 'td_rando'
+        verbose_name = 'RandomizationList'
